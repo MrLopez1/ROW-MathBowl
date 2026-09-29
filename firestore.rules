@@ -1,0 +1,48 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Organizers. Keep this list the same as ADMIN_EMAILS in public/index.html.
+    function isOrganizer() {
+      return request.auth != null
+          && request.auth.token.email_verified == true
+          && request.auth.token.email in [
+               'nahum@rowhn.com'
+             ];
+    }
+
+    // Registrations from schools.
+    //   create / update : anyone (a school confirming, or correcting its entry)
+    //   read / delete   : organizers only
+    // The public can write here but can never list or read back what others sent,
+    // so student names and school contacts are not exposed.
+    match /registrations/{school} {
+      allow read, delete: if isOrganizer();
+      allow create, update: if
+           request.resource.data.keys().hasAll(['school','email','attending','submitted'])
+        && request.resource.data.school is string
+        && request.resource.data.school.size() > 0
+        && request.resource.data.school.size() < 200
+        && request.resource.data.email is string
+        && request.resource.data.email.size() < 200
+        && request.resource.data.attending in ['Yes','No']
+        && request.resource.data.students is int
+        && request.resource.data.students < 200
+        && request.resource.data.roster.size() < 200
+        && request.resource.data.staff.size() < 100;
+    }
+
+    // Event details shown on the invitation. Public must read them to see the
+    // page; only organizers may change them.
+    match /config/event {
+      allow read: if true;
+      allow write: if isOrganizer();
+    }
+
+    // Nothing else is reachable.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
