@@ -713,7 +713,7 @@ $('submitBtn').addEventListener('click',async()=>{
       (att==='Yes'
         ? 'We have '+esc(school)+' down for '+list.length+' student'+(list.length>1?'s':'')+
           (st_list.length?' and '+st_list.length+' teacher'+(st_list.length>1?'s':''):'')+'. '+
-          esc(S.contact)+' will email '+esc(email)+' with the schedule and the handbook. Deposit deadline: '+esc(S.deadline)+'.'
+          esc(S.contact)+' will email you from '+esc(email)+' with the schedule and the handbook. Deposit deadline: '+esc(S.deadline)+'.'
         : 'We have noted that '+esc(school)+' will not take part this year. You are welcome next time.')+'</p></div>';
     $('formWrap').scrollIntoView({behavior:'smooth',block:'center'});
   }catch(e){
